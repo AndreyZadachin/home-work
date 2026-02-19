@@ -55,33 +55,10 @@ class CustomPromise {
   }
   catch() {
   }
-
-  getDebugInfo() {
-    return {
-      state: this.state,
-      isPending: this.state === "pending",
-      isFulfilled: this.state === "fulfilled",
-      isRejected: this.state === "rejected",
-      result: this.result,
-      handlersCount: this.arrayHandlers.length,
-      checkedAt: new Date().toISOString()
-    }
-  }
-
-  logStatus(label = "CustomPromise") {
-    const info = this.getDebugInfo()
-    const icon = info.isPending ? "⏳" : info.isFulfilled ? "✅" : "❌"
-    console.log(`${icon} [${label}] state: ${info.state}`)
-    console.log(`[${label}] result:`, info.result)
-    console.log(`[${label}] handlersCount: ${info.handlersCount}`)
-    console.log(`[${label}] checkedAt: ${info.checkedAt}`)
-  }
 }
 
 function watchPromiseStatus(promise, label = "CustomPromise", intervalMs = 300) {
   const timer = setInterval(() => {
-    promise.logStatus(label)
-
     if (promise.state !== "pending") {
       clearInterval(timer)
       console.log(`[${label}] final state reached: ${promise.state}`)
@@ -91,7 +68,6 @@ function watchPromiseStatus(promise, label = "CustomPromise", intervalMs = 300) 
   return () => clearInterval(timer)
 }
 
-// Пример проверки:
 const p = new CustomPromise((resolve, reject) => {
   setTimeout(() => {
     console.log("таймаут выполнился")
