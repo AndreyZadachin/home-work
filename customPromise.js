@@ -2,80 +2,120 @@ class CustomPromise {
   constructor (executor) {
     this.state = "pending"
     this.result = undefined
-
-    this.arrayHandlers = [{ // Храним обработчики
-      resolve: "функция при onFulfilled;",
-      reject: "функция при onRejected"
-    }]
+    this.arrayHandlers = []
 
     const resolve = (value) => {
       if (this.state === "pending") {
         this.state = "fulfilled"
         this.result = value
+
+        this.arrayHandlers.forEach((item) => {
+          try {
+            if (typeof item.onFulFilled !== "function") {
+              item.nextResolve(this.result)
+            } else {
+              const res = item.onFulFilled(this.result)
+              item.nextResolve(res)
+            }
+          } catch(err) {
+            item.nextReject(err)
+          }
+        })
+        this.arrayHandlers = []
       }
     }
     const reject = (error) => {
       if (this.state === "pending") {
         this.state = "rejected"
         this.result = error
+
+        this.arrayHandlers.forEach((item) => {
+          if (typeof item.onReject !== "function") {
+            item.nextReject(this.result)
+          } else {
+            try {
+              const res = item.onReject(this.result)
+              item.nextResolve(res)
+            } catch(err) {
+              item.nextReject(err)
+            }
+          }
+        })
+        this.arrayHandlers = []
       }
     }
 
     try {
       if (typeof executor !== "function") {
-        throw new Error("executor должен быть функцией")
+        throw new TypeError("executor должен быть функцией")
       }
 
       executor(resolve, reject)
     } catch(err) {
+      console.error("упал в конструкторе", err)
       reject(err)
     }
-  }
+  } 
 
-  then(callback) {
+  then(onFulFilled, onReject) {
+    if (this.state === "pending") {
+      const res = new CustomPromise((nextResolve, nextReject) => {
+        this.arrayHandlers.push({ onFulFilled, onReject, nextResolve, nextReject })
+      })
+
+      return res
+    }
+
     if (this.state === "fulfilled") {
-      return new CustomPromise((resolve) => {
-        const res = callback(this.result)
+      const res = new CustomPromise((nextResolve, nextReject) => {
+        if (typeof onFulFilled !== "function") {
+          nextResolve(this.result)
+        } else {
+          try {
+            const result = onFulFilled(this.result)
+            nextResolve(result)
+          } catch(err) {
+            nextReject(err)
+          }
+        }
       })
+      return res
     }
+
     if (this.state === "rejected") {
-      return new CustomPromise((resolve, reject) => {
-        callback(this.result)
+      return new CustomPromise((nextResolve, nextReject) => {
+        if (typeof onReject !== "function") {
+          nextReject(this.result)
+          return
+        }
+        try {
+          const result = onReject(this.result)
+          nextResolve(result)
+        } catch(err) {
+          nextReject(err)
+        }
       })
     }
-    console.log("Выполнился THEN")
   }
-  resolve(value) {
-    this.state = "fulfilled"
-    this.result = value
-  }
-  reject(error) {
-    this.state = "rejected"
-    this.result = error
-  }
-  catch() {
+  catch(callback) {
+    return this.then(undefined, callback)
   }
 }
 
-function watchPromiseStatus(promise, label = "CustomPromise", intervalMs = 300) {
-  const timer = setInterval(() => {
-    if (promise.state !== "pending") {
-      clearInterval(timer)
-      console.log(`[${label}] final state reached: ${promise.state}`)
-    }
-  }, intervalMs)
-
-  return () => clearInterval(timer)
-}
-
+// Пример проверки:
 const p = new CustomPromise((resolve, reject) => {
   setTimeout(() => {
     console.log("таймаут выполнился")
     resolve("done")
-    // reject(new Error("something went wrong"))
   }, 1200)
-}).then((resolve) => {
-  console.log("then", resolve)
 })
-
-watchPromiseStatus(p, "test-promise", 400)
+.then((resolve, reject) => {
+    console.log("значение resolve в then пользователя", resolve)
+  }
+)
+.then((res) => {
+  console.log("значение resolve в then пользователя 2", res)
+})
+.catch((err) => {
+  console.log("catch", err)
+})
