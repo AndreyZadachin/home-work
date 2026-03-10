@@ -6,6 +6,8 @@
 
 #### version v0.1.0
 
+##### запуск из директории fullstack npm run serve и далее из директории server npm run dev
+
 
 Используемые технологии:
 
@@ -17,3 +19,4 @@
 - Express.js
 - Axios
 - MongoDB
+
