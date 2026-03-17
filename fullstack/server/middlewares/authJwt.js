@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 import config from "../config/auth.config.js";
-import db from "../models/index.js";
-
-const User = db.User;
+import userService from "../services/user.service.js";
 
 const verifyToken = async (req, res, next) => {
   let token = req.headers["x-access-token"] || req.headers["authorization"];
@@ -17,7 +15,7 @@ const verifyToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, config.secret);
-    const user = await User.findById(decoded.id);
+    const user = await userService.findById(decoded.id);
     if (!user) {
       return res.status(404).json({ message: "User not found!" });
     }

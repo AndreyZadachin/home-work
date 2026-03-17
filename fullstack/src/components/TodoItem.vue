@@ -5,18 +5,28 @@
       <span class="bold">{{ index + 1 }}</span>
       {{ item.title }}
     </div>
-    <button @click="$emit('remove-item', item._id)">Удалить</button>
+    <button @click="removeItem">Удалить</button>
   </li>
 </template>
 
 <script>
 export default {
+  name: "TodoItem",
   props: {
     item: {
       type: Object,
       required: true,
     },
-    index: Number,
+    index: {
+      type: Number,
+      default: 0,
+    },
+  },
+  emits: ["remove-item"],
+  methods: {
+    removeItem() {
+      this.$emit("remove-item", this.item._id);
+    },
   },
 };
 </script>

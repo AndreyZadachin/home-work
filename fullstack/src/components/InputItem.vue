@@ -10,20 +10,23 @@
 
 <script>
 export default {
+  name: "InputItem",
+  emits: ["add-item"],
   data() {
     return {
-      title: '',
+      title: "",
     };
   },
   methods: {
     addItem() {
-      if (this.title.trim()) {
-        const newItem = {
-          title: this.title,
+      const title = this.title.trim();
+
+      if (title) {
+        this.$emit("add-item", {
+          title,
           status: false,
-        };
-        this.$emit('add-item', newItem);
-        this.title = '';
+        });
+        this.title = "";
       }
     },
   },

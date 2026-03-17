@@ -1,22 +1,33 @@
 <template>
-  <div>
-    <ul>
-      <TodoItem v-for="(item, index) in todoLists" :key="item._id" :index="index" :item="item" @remove-item="removeItem" />
-    </ul>
-  </div>
+  <ul>
+    <TodoItem
+      v-for="(item, index) in items"
+      :key="item._id"
+      :index="index"
+      :item="item"
+      @remove-item="emitRemoveItem"
+    />
+  </ul>
 </template>
 
 <script>
-import TodoItem from '@/components/TodoItem';
+import TodoItem from "@/components/TodoItem.vue";
 
 export default {
-  props: ['todoLists'],
+  name: "TodoList",
   components: {
     TodoItem,
   },
+  props: {
+    items: {
+      type: Array,
+      default: () => [],
+    },
+  },
+  emits: ["remove-item"],
   methods: {
-    removeItem(id) {
-      this.$emit('removeItem', id);
+    emitRemoveItem(id) {
+      this.$emit("remove-item", id);
     },
   },
 };

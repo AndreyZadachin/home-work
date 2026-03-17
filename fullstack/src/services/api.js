@@ -1,17 +1,17 @@
-import axios from 'axios';
+import axios from "axios";
+import { getStoredToken } from "@/utils/authStorage";
 
-const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || '/api';
-const AUTH_TOKEN_KEY = process.env.VUE_APP_AUTH_TOKEN_KEY || 'accessToken';
+const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || "/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  const token = getStoredToken();
 
   if (token) {
     config.headers = config.headers || {};

@@ -1,15 +1,17 @@
 <template>
   <div>
     <h3>Задач в списке</h3>
-    <span>{{ db }}</span>
+    <span>{{ count }}</span>
   </div>
 </template>
 
 <script>
 export default {
+  name: "TodoInProcess",
   props: {
-    db: {
+    count: {
       type: Number,
+      default: 0,
     },
   },
 };
