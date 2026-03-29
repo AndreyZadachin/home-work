@@ -1,15 +1,15 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import config from "../config/auth.config.js";
+import testUserConfig from "../config/test-user.config.js";
 import userRepository from "../repositories/user.repository.js";
-
-const SINGLE_USER_USERNAME = process.env.TEST_USER_USERNAME || "testuser";
+import STATUS_CODES from "../constants/status-codes.js";
 
 class AuthService {
   async signin(credentials) {
-    if (credentials.username !== SINGLE_USER_USERNAME) {
+    if (credentials.username !== testUserConfig.username) {
       return {
-        status: 401,
+        status: STATUS_CODES.UNAUTHORIZED,
         body: {
           accessToken: null,
           message: "Invalid credentials!",
@@ -17,10 +17,10 @@ class AuthService {
       };
     }
 
-    const user = await userRepository.findByUsername(SINGLE_USER_USERNAME);
+    const user = await userRepository.findByUsername(testUserConfig.username);
     if (!user) {
       return {
-        status: 404,
+        status: STATUS_CODES.NOT_FOUND,
         body: { message: "User Not found." },
       };
     }
@@ -31,7 +31,7 @@ class AuthService {
     );
     if (!passwordIsValid) {
       return {
-        status: 401,
+        status: STATUS_CODES.UNAUTHORIZED,
         body: {
           accessToken: null,
           message: "Invalid Password!",
@@ -45,7 +45,7 @@ class AuthService {
     });
 
     return {
-      status: 200,
+      status: STATUS_CODES.OK,
       body: {
         id: user._id,
         username: user.username,

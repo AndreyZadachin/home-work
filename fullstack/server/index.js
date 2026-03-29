@@ -2,9 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import db from "./models/index.js";
-import authRoutes from "./routes/auth.routes.js";
-import userRoutes from "./routes/user.routes.js";
-import todoRoutes from "./routes/todo.routes.js";
+import apiRoutes from "./routes/index.js";
 import testUserService from "./services/test-user.service.js";
 
 const PORT = Number(process.env.PORT) || 5050;
@@ -33,9 +31,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/api/auth", authRoutes);
-app.use("/api", userRoutes);
-app.use("/api", todoRoutes);
+app.use("/api", apiRoutes);
 
 db.mongoose
   .connect(DB_URL)

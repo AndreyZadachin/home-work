@@ -1,12 +1,15 @@
 import jwt from "jsonwebtoken";
 import config from "../config/auth.config.js";
 import userService from "../services/user.service.js";
+import STATUS_CODES from "../constants/status-codes.js";
 
 const verifyToken = async (req, res, next) => {
   let token = req.headers["x-access-token"] || req.headers["authorization"];
 
   if (!token) {
-    return res.status(403).json({ message: "No token provided!" });
+    return res
+      .status(STATUS_CODES.FORBIDDEN)
+      .json({ message: "No token provided!" });
   }
 
   if (token.startsWith("Bearer ")) {
@@ -17,13 +20,17 @@ const verifyToken = async (req, res, next) => {
     const decoded = jwt.verify(token, config.secret);
     const user = await userService.findById(decoded.id);
     if (!user) {
-      return res.status(404).json({ message: "User not found!" });
+      return res
+        .status(STATUS_CODES.NOT_FOUND)
+        .json({ message: "User not found!" });
     }
 
     req.user = user;
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Unauthorized!" });
+    return res
+      .status(STATUS_CODES.UNAUTHORIZED)
+      .json({ message: "Unauthorized!" });
   }
 };
 
